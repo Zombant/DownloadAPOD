@@ -4,8 +4,9 @@
 #include <ostream>
 #include <cstring>
 #include <algorithm>
-#include <curl/curl.h>
+#include <curl/curl.h> // URL downloading
 #include <unistd.h>
+#include <fstream> // File reading and writing
 
 //https://curl.se/libcurl/c/url2file.html
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
   string htmlFileLocation = "";
   string htmlFileName = "/apod.txt";
   
-  string configFileLocation = "config.txt";
+  string configFileName = "config.txt";
   
   string imageFileName = "apod.jpg";
   
@@ -112,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     #ifdef __linux__
 
-    htmlFileLocation = (string)get_current_dir_name() + htmlFileName;
+    htmlFileLocation = (string)get_current_dir_name() + imageFileName;
     
     
     #endif
@@ -124,9 +125,42 @@ int main(int argc, char *argv[]) {
 
     // Else use a config file
   } else {
-    //TODO: Create a config.txt if it does not exist
+    // Create a config.txt if it does not exist
+    ifstream file_in(configFileName);
+    if(!file_in.is_open()){
+      cout << "Enter the save location for the image or leave blank to store in program directory." << endl;
 
-    //TODO: Read from the config file
+      //cin >> imageFileLocation;
+      getline(cin, imageFileLocation);
+
+      file_in.close();
+      ofstream file_out(configFileName);
+      file_out << imageFileLocation;
+      file_out.close();
+
+    }
+
+
+    // Read from the config file
+    ifstream file_in2(configFileName);
+    file_in2 >> imageFileLocation;
+    file_in2.close();
+
+    //If the file is empty
+    if(!strcmp(imageFileLocation.c_str(), "")) {
+      #ifdef __linux__
+      imageFileLocation = (string)get_current_dir_name();
+      #endif
+
+      #ifdef _WIN64
+      #endif
+
+      // Write default location to file
+      ofstream file_out2(configFileName);
+      file_out2 << imageFileLocation;
+      file_out2.close();
+    }
+    
   }
 
   downloadHTML(dateArg, htmlFileLocation.c_str());
