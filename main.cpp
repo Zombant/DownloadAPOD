@@ -9,6 +9,8 @@
 #include <fstream> // File reading and writing
 #include <ctime> // Time and date
 
+using namespace std;
+
 //https://curl.se/libcurl/c/url2file.html
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 {
@@ -17,7 +19,6 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
   return written;
 }
 
-using namespace std;
 
 bool string_in_array(char** _array, string _string, int numOfStrings) {
   for(int i = 0; i < numOfStrings; i++){
