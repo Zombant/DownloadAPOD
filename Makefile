@@ -1,10 +1,10 @@
 CC=g++
 
 build_linux:
-	$(CC) -o downloadapod -lcurl main.cpp
+	$(CC) -o downloadapod main.cpp -lcurl
 
 run_linux:
-	$(CC) -o downloadapod main.cpp
+	$(CC) -o downloadapod main.cpp -lcurl
 	./downloadapod
 
 clean:
