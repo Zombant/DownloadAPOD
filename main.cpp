@@ -114,8 +114,8 @@ int main(int argc, char *argv[]) {
 
     #ifdef __linux__
 
-    htmlFileLocation = (string)get_current_dir_name() + imageFileName;
-    
+    imageFileLocation = (string)get_current_dir_name() + "/" + imageFileName;
+    cout << htmlFileLocation << endl;
     
     #endif
 
@@ -131,7 +131,6 @@ int main(int argc, char *argv[]) {
     if(!file_in.is_open()){
       cout << "Enter the save location for the image or leave blank to store in program directory." << endl;
 
-      //cin >> imageFileLocation;
       getline(cin, imageFileLocation);
 
       file_in.close();
@@ -215,6 +214,9 @@ int main(int argc, char *argv[]) {
   }
   
   
+  cout << dateString << endl;
+  cout << htmlFileName << endl;
+  cout << imageFileLocation << endl;
   downloadHTML(dateString, htmlFileName.c_str());
 
   return 0;
