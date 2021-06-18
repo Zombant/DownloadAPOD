@@ -5,6 +5,7 @@
 #include <cstring>
 #include <algorithm>
 #include <curl/curl.h>
+#include <unistd.h>
 
 //https://curl.se/libcurl/c/url2file.html
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
@@ -34,8 +35,9 @@ void downloadHTML(string date, const char* htmlFileName) {
   curl_handle = curl_easy_init();
 
   string url = "https://apod.nasa.gov/apod/ap" + date + ".html";
+  
   curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
-
+  
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);  
   pagefile = fopen(htmlFileName, "wb");
   if(pagefile) {
@@ -58,6 +60,15 @@ void downloadHTML(string date, const char* htmlFileName) {
 int main(int argc, char *argv[]) {
   string dateArg = "";
   bool shouldChooseRandom = false;
+
+  string htmlFileLocation = "";
+  string htmlFileName = "/apod.txt";
+  
+  string configFileLocation = "config.txt";
+  
+  string imageFileName = "apod.jpg";
+  
+  string imageFileLocation = "";
 
   // Start at the argument at index 1 (0 index is the command that was run)
   for(int argument = 1; argument < argc; argument++) {
@@ -95,22 +106,30 @@ int main(int argc, char *argv[]) {
     shouldChooseRandom = true;
   }
 
-  const char* htmlFileName = "apod.txt";
-  string configFileLocation = "config.txt";
-  string imageFileName = "apod.jpg";
-
-  string imageFileLocation = "";
 
   // If -d or --default is used as an argument
-  if(string_in_array(argv, "-h", argc) || string_in_array(argv, "--help", argc)) {
-    //TODO: imageFileLocation is here
+  if(string_in_array(argv, "-d", argc) || string_in_array(argv, "--default", argc)) {
+
+    #ifdef __linux__
+
+    htmlFileLocation = (string)get_current_dir_name() + htmlFileName;
+    
+    
+    #endif
+
+    #ifdef _WIN64
+    
+
+    #endif
+
+    // Else use a config file
   } else {
     //TODO: Create a config.txt if it does not exist
 
     //TODO: Read from the config file
   }
 
-  downloadHTML(dateArg, htmlFileName);
+  downloadHTML(dateArg, htmlFileLocation.c_str());
 
   return 0;
   

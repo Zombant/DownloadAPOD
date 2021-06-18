@@ -9,3 +9,4 @@ run_linux:
 
 clean:
 	rm downloadapod
+	rm apod.txt
