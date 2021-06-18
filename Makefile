@@ -13,3 +13,11 @@ build_windows:
 clean:
 	rm downloadapod
 	rm apod.txt
+
+
+install_libcurl:
+	cp -r libcurl/lib/* /usr/x86_64-w64-mingw32/lib/
+	cp -r libcurl/bin/* /usr/x86_64-w64-mingw32/bin/
+	cp -r libcurl/include/* /usr/x86_64-w64-mingw32/include/
+	cp -r libcurl/bin/libcurl-x64.dll ../..
+
