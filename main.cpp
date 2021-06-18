@@ -63,10 +63,12 @@ int main(int argc, char *argv[]) {
   string dateArg = "";
   bool shouldChooseRandom = false;
 
-  string htmlFileLocation = "";
-  string htmlFileName = "apod.txt";
+  #ifdef __linux__
+  string htmlFileLocation = "apod.txt";
+  #endif
   
   string configFileName = "config.txt";
+
   
   string imageFileName = "apod.jpg";
   
@@ -115,7 +117,6 @@ int main(int argc, char *argv[]) {
     #ifdef __linux__
 
     imageFileLocation = (string)get_current_dir_name() + "/" + imageFileName;
-    cout << htmlFileLocation << endl;
     
     #endif
 
@@ -215,9 +216,8 @@ int main(int argc, char *argv[]) {
   
   
   cout << dateString << endl;
-  cout << htmlFileName << endl;
   cout << imageFileLocation << endl;
-  downloadHTML(dateString, htmlFileName.c_str());
+  downloadHTML(dateString, htmlFileLocation.c_str());
 
   return 0;
   
