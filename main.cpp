@@ -4,7 +4,12 @@
 #include <ostream>
 #include <cstring>
 #include <algorithm>
+#ifdef __linux__
 #include <curl/curl.h> // URL downloading
+#endif
+#ifdef _WIN64
+#include "curl/curl.h"
+#endif
 #include <unistd.h>
 #include <fstream> // File reading and writing
 #include <ctime> // Time and date
