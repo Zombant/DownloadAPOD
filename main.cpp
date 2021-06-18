@@ -7,6 +7,7 @@
 #include <curl/curl.h> // URL downloading
 #include <unistd.h>
 #include <fstream> // File reading and writing
+#include <ctime> // Time and date
 
 //https://curl.se/libcurl/c/url2file.html
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]) {
   bool shouldChooseRandom = false;
 
   string htmlFileLocation = "";
-  string htmlFileName = "/apod.txt";
+  string htmlFileName = "apod.txt";
   
   string configFileName = "config.txt";
   
@@ -163,7 +164,58 @@ int main(int argc, char *argv[]) {
     
   }
 
-  downloadHTML(dateArg, htmlFileLocation.c_str());
+
+  // Set up datestring
+  string dateString = "";
+  
+  tm* date;
+  time_t t = time(NULL);
+  date = localtime(&t);
+  
+  if(!strcmp(dateArg.c_str(), "")){
+
+    if(shouldChooseRandom) {
+      //date = random
+    } else {
+      //date = now
+
+      //Year
+      dateString += to_string(date->tm_year).substr(1, 2);
+
+      //Month
+      switch(date->tm_mon) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	dateString = dateString + "0" + to_string(date->tm_mon + 1);
+	break;
+      case 9:
+      case 10:
+      case 11:
+	dateString = dateString + to_string(date->tm_mon + 1);
+	break;
+      }
+
+      if (date->tm_mday >= 1 && date->tm_mday <= 9) {
+	dateString = dateString + "0" + to_string(date->tm_mday);
+      } else {
+	dateString = dateString + to_string(date->tm_mday);
+      }
+      
+    }
+
+  } else {
+    dateString += dateArg;
+  }
+  
+  
+  downloadHTML(dateString, htmlFileName.c_str());
 
   return 0;
   
