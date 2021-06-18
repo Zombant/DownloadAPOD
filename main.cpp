@@ -4,6 +4,14 @@
 #include <ostream>
 #include <cstring>
 #include <algorithm>
+#include <curl/curl.h>
+
+//https://curl.se/libcurl/c/url2file.html
+static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
+  return written;
+}
 
 using namespace std;
 
@@ -16,6 +24,36 @@ bool string_in_array(char** _array, string _string, int numOfStrings) {
   return false;
 }
 
+void downloadHTML(string date, const char* htmlFileName) {
+  
+  CURL *curl_handle;
+  FILE *pagefile;
+
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  curl_handle = curl_easy_init();
+
+  string url = "https://apod.nasa.gov/apod/ap" + date + ".html";
+  curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);  
+  pagefile = fopen(htmlFileName, "wb");
+  if(pagefile) {
+ 
+    /* write the page body to this file handle */
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, pagefile);
+ 
+    /* get it! */
+    curl_easy_perform(curl_handle);
+ 
+    /* close the header file */
+    fclose(pagefile);
+  }
+ 
+  /* cleanup curl stuff */
+  curl_easy_cleanup(curl_handle);
+ 
+}
 
 int main(int argc, char *argv[]) {
   string dateArg = "";
@@ -30,7 +68,7 @@ int main(int argc, char *argv[]) {
     } catch(invalid_argument) { }
 
     if(dateInt != -1) {
-      dateArg == argv[argument];
+      dateArg = argv[argument];
       continue;
     }
 
@@ -57,7 +95,7 @@ int main(int argc, char *argv[]) {
     shouldChooseRandom = true;
   }
 
-  string htmlFileLocation = "apod.txt";
+  const char* htmlFileName = "apod.txt";
   string configFileLocation = "config.txt";
   string imageFileName = "apod.jpg";
 
@@ -71,5 +109,9 @@ int main(int argc, char *argv[]) {
 
     //TODO: Read from the config file
   }
+
+  downloadHTML(dateArg, htmlFileName);
+
+  return 0;
   
 }

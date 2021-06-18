@@ -1,7 +1,7 @@
 CC=g++
 
 build_linux:
-	$(CC) -o downloadapod main.cpp
+	$(CC) -o downloadapod -lcurl main.cpp
 
 run_linux:
 	$(CC) -o downloadapod main.cpp
