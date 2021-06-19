@@ -43,7 +43,7 @@ void downloadHTML(string date, const char* htmlFileName) {
   curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
   
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);  
-  pagefile = fopen(htmlFileName, "wb");
+  pagefile = fopen(htmlFileName, "w");
   if(pagefile) {
  
     /* write the page body to this file handle */
