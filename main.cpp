@@ -15,7 +15,7 @@ using namespace std;
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 {
   size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
-  cout << "Writing data..." << endl;
+  //cout << "Writing data..." << endl;
   return written;
 }
 
@@ -29,7 +29,7 @@ bool string_in_array(char** _array, string _string, int numOfStrings) {
   return false;
 }
 
-void downloadHTML(string date, const char* htmlFileName) {
+void downloadHTML(string url, const char* htmlFileName) {
   
   CURL *curl_handle;
   FILE *pagefile;
@@ -38,7 +38,6 @@ void downloadHTML(string date, const char* htmlFileName) {
 
   curl_handle = curl_easy_init();
 
-  string url = "https://apod.nasa.gov/apod/ap" + date + ".html";
   
   curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
   
@@ -60,7 +59,35 @@ void downloadHTML(string date, const char* htmlFileName) {
   curl_easy_cleanup(curl_handle);
  
 }
+void downloadImage(string url, const char* imageFileName) {
+  
+  CURL *curl_handle;
+  FILE *pagefile;
 
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  curl_handle = curl_easy_init();
+
+  curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+  
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);  
+  pagefile = fopen(imageFileName, "w");
+  if(pagefile) {
+ 
+    /* write the page body to this file handle */
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, pagefile);
+ 
+    /* get it! */
+    curl_easy_perform(curl_handle);
+ 
+    /* close the header file */
+    fclose(pagefile);
+  }
+ 
+  /* cleanup curl stuff */
+  curl_easy_cleanup(curl_handle);
+ 
+}
 int main(int argc, char *argv[]) {
   string dateArg = "";
   bool shouldChooseRandom = false;
@@ -68,10 +95,7 @@ int main(int argc, char *argv[]) {
   string htmlFileLocation = "apod.txt";
   
   string configFileName = "config.txt";
-
-  
-  string imageFileName = "apod.jpg";
-  
+ 
   string imageFileLocation = "";
 
   // Start at the argument at index 1 (0 index is the command that was run)
@@ -114,16 +138,7 @@ int main(int argc, char *argv[]) {
   // If -d or --default is used as an argument
   if(string_in_array(argv, "-d", argc) || string_in_array(argv, "--default", argc)) {
 
-    #ifdef __linux__
-
-    imageFileLocation = (string)get_current_dir_name() + "/" + imageFileName;
-    
-    #endif
-
-    #ifdef _WIN64
-    
-
-    #endif
+    imageFileLocation = (string)get_current_dir_name();
 
     // Else use a config file
   } else {
@@ -149,12 +164,8 @@ int main(int argc, char *argv[]) {
 
     //If the file is empty
     if(!strcmp(imageFileLocation.c_str(), "")) {
-      #ifdef __linux__
-      imageFileLocation = (string)get_current_dir_name();
-      #endif
 
-      #ifdef _WIN64
-      #endif
+      imageFileLocation = (string)get_current_dir_name();
 
       // Write default location to file
       ofstream file_out2(configFileName);
@@ -177,8 +188,6 @@ int main(int argc, char *argv[]) {
     if(shouldChooseRandom) {
       //date = random
     } else {
-      //date = now
-
       //Year
       dateString += to_string(date->tm_year).substr(1, 2);
 
@@ -213,12 +222,58 @@ int main(int argc, char *argv[]) {
   } else {
     dateString += dateArg;
   }
-  
-  
-  cout << dateString << endl;
-  cout << imageFileLocation << endl;
-  downloadHTML(dateString, htmlFileLocation.c_str());
 
+  
+  
+  string url = "https://apod.nasa.gov/apod/ap" + dateString + ".html";
+  
+  downloadHTML(url, htmlFileLocation.c_str());
+  cout << "Downloading HTML from:  " + url << endl; 
+
+  //TODO: Check if it is a valid date
+
+
+  //Find part of the html that has the image URL
+  string line = "";
+  string targetText = "<a href=\"image";
+  ifstream htmlFile(htmlFileLocation);
+  
+  while(getline(htmlFile, line)) {
+    if(line.find(targetText) != string::npos) {
+      break;
+    }
+  }
+
+  htmlFile.close();
+
+  if(!strcmp(line.c_str(), "")){
+    cout << endl << endl << "No image found on https://apod.nasa.gov/apod/ap" + dateString + ".html" << endl;
+    cout << "Try again tomorrow!" << endl;
+    return 0;
+  }
+
+  //Remove unwanted parts from URL
+  int beginningIndex = line.find('i', 0);
+  int endIndex = line.find('\"', beginningIndex);
+  string imageUrlEnd = line.substr(beginningIndex, endIndex-beginningIndex);
+
+  string imageUrl = "https://apod.nasa.gov/apod/" + imageUrlEnd;
+
+  
+  imageFileLocation = imageFileLocation + "/apod_" + dateString + ".jpg";
+
+  cout << "Downloading image:      " + imageUrlEnd << endl;
+  cout << "Image URL:              " + imageUrl << endl;
+  downloadImage(imageUrl, imageFileLocation.c_str());
+  cout << "Image saved to " + imageFileLocation << endl;
+
+
+  //Delete HTML file
+  remove(htmlFileLocation.c_str());
+
+  //TODO: Set as wallpaper
+
+  
   return 0;
   
 }
