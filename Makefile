@@ -8,6 +8,6 @@ run:
 	./downloadapod
 
 clean:
-	rm downloadapod
-	rm apod.txt
-	rm config.txt
+	-rm downloadapod
+	-rm apod.txt
+	-rm config.txt

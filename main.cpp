@@ -230,15 +230,19 @@ int main(int argc, char *argv[]) {
   downloadHTML(url, htmlFileLocation.c_str());
   cout << "Downloading HTML from:  " + url << endl; 
 
-  //TODO: Check if it is a valid date
-
-
+  //Check if it is a valid date and
   //Find part of the html that has the image URL
   string line = "";
   string targetText = "<a href=\"image";
+  string error404 = "<title>404 Not Found</title>";
   ifstream htmlFile(htmlFileLocation);
   
   while(getline(htmlFile, line)) {
+    if(line.find(error404) != string::npos) {
+      cout << "Failed to download image. Make sure you choose a valid date." << endl;
+      remove(htmlFileLocation.c_str());
+      return 0;
+    }
     if(line.find(targetText) != string::npos) {
       break;
     }
@@ -249,6 +253,7 @@ int main(int argc, char *argv[]) {
   if(!strcmp(line.c_str(), "")){
     cout << endl << endl << "No image found on https://apod.nasa.gov/apod/ap" + dateString + ".html" << endl;
     cout << "Try again tomorrow!" << endl;
+    remove(htmlFileLocation.c_str());
     return 0;
   }
 
@@ -259,7 +264,7 @@ int main(int argc, char *argv[]) {
 
   string imageUrl = "https://apod.nasa.gov/apod/" + imageUrlEnd;
 
-  
+  //TODO: Support for gifs
   imageFileLocation = imageFileLocation + "/apod_" + dateString + ".jpg";
 
   cout << "Downloading image:      " + imageUrlEnd << endl;
