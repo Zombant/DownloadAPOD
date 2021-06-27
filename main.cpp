@@ -184,9 +184,96 @@ int main(int argc, char *argv[]) {
   date = localtime(&t);
   
   if(!strcmp(dateArg.c_str(), "")){
-
     if(shouldChooseRandom) {
-      //date = random
+
+      srand(time(0));
+      
+      int firstApodYear = 1995;
+      int firstApodMonth = 5; //June (starts at 0)
+      int firstApodDay = 16;
+      
+      int currentYear = date->tm_year + 1900;
+      int currentMonth = date->tm_mon;
+      int currentDay = date->tm_mday;
+      
+      int chosenYear = (rand() % (currentYear + 1 - firstApodYear)) + firstApodYear;
+      int chosenMonth;
+      int chosenDay;
+
+      
+      if(chosenYear == currentYear) {
+	chosenMonth = (rand() % (currentMonth + 1 - 0)) + 0;
+      } else if(chosenYear == firstApodYear){
+	chosenMonth = (rand() % (11 + 1 - firstApodMonth)) + firstApodMonth;
+      } else {
+	chosenMonth = (rand() % (11 + 1 - 0)) + 0;
+      }
+
+      if(chosenMonth == currentMonth && chosenYear == currentYear){
+	chosenDay = (rand() % (currentDay + 1 - 1)) + 1;
+      } else if(chosenMonth == firstApodMonth && chosenYear == firstApodYear){
+	chosenDay = (rand() % (30 + 1 - firstApodDay)) + firstApodDay;
+      } else {
+	switch(chosenMonth) {
+	case 0:
+	case 2:
+	case 4:
+	case 6:
+	case 7:
+	case 9:
+	case 11:
+	  chosenDay = (rand() % (31 + 1 - 1)) + 1;
+	  break;
+	case 3:
+	case 5:
+	case 8:
+	case 10:
+	  chosenDay = (rand() % (30 + 1 - 1)) + 1;
+	  break;
+	case 1:
+	  if(((chosenYear % 4 == 0) && (chosenYear % 100 != 0)) || (chosenYear % 400 == 0)) {
+	    chosenDay = (rand() % (29 + 1 - 1)) + 1;
+	  } else {
+	    chosenDay = (rand() % (28 + 1 - 1)) + 1;
+	  }
+	  break;
+	}
+      }
+
+      cout << chosenMonth + 1 << "/" << chosenDay << "/" << chosenYear << endl;
+
+      //Year to dateString
+      dateString += to_string(chosenYear).substr(2, 2);
+
+      //Month to dateString
+      switch(chosenMonth) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+	  dateString = dateString + "0" + to_string(chosenMonth + 1);
+	  break;
+        case 9:
+        case 10:
+        case 11:
+	  dateString = dateString + to_string(chosenMonth + 1);
+	  break;
+      }
+
+      //Day to dateString
+      if (chosenDay >= 1 && chosenDay <= 9) {
+	dateString = dateString + "0" + to_string(chosenDay);
+      } else {
+	dateString = dateString + to_string(chosenDay);
+      }
+      
+      cout << dateString << endl;
+      
     } else {
       //Year
       dateString += to_string(date->tm_year).substr(1, 2);
