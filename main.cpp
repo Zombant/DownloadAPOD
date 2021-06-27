@@ -363,9 +363,21 @@ int main(int argc, char *argv[]) {
   //Delete HTML file
   remove(htmlFileLocation.c_str());
 
-  //TODO: Set as wallpaper
+  //Set wallpaper
+  if(!string_in_array(argv, "-nw", argc) && !string_in_array(argv, "-no-wallpaper", argc)){
 
-  
+    /* Other options
+       --bg-tile
+       --bg-center
+       --bg-max
+       --bg-fill
+    */
+    
+    string command = "feh --bg-fill " + imageFileLocation;
+    system(command.c_str());
+    cout << "Image set as wallpaper" << endl;
+  }
+   
   return 0;
   
 }
