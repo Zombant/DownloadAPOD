@@ -93,10 +93,15 @@ int main(int argc, char *argv[]) {
   bool shouldChooseRandom = false;
 
   string htmlFileLocation = "apod.txt";
+
+  string xdgConfig = getenv("XDG_CONFIG_HOME");
+  string programConfigDir = xdgConfig + "/downloadapod/";
+  string configFileName = programConfigDir + "config.txt";
+  system("mkdir -p $XDG_CONFIG_HOME/downloadapod/");
   
-  string configFileName = "config.txt";
- 
   string imageFileLocation = "";
+
+  int locationOfDFlag = -1;
 
   // Start at the argument at index 1 (0 index is the command that was run)
   for(int argument = 1; argument < argc; argument++) {
@@ -112,20 +117,29 @@ int main(int argc, char *argv[]) {
     }
 
     //Check for invalid arguments
-    if (strcmp(argv[argument], "-d") && strcmp(argv[argument], "--default") && strcmp(argv[argument], "-r") && strcmp(argv[argument], "--random") && strcmp(argv[argument], "-h") && strcmp(argv[argument], "--help") && strcmp(argv[argument], "-nw") && strcmp(argv[argument], "--no-wallpaper")) {
-       cout << "Invalid arguments. Use -h or --help to see available arguments" << endl;
-       return 0;
+    if (strcmp(argv[argument], "-d") && strcmp(argv[argument], "--directory") && strcmp(argv[argument], "-r") && strcmp(argv[argument], "--random") && strcmp(argv[argument], "-h") && strcmp(argv[argument], "--help") && strcmp(argv[argument], "-nw") && strcmp(argv[argument], "--no-wallpaper")) {
+
+      if (!strcmp(argv[argument-1], "-d") || !strcmp(argv[argument-1], "--directory")) {
+	
+      } else {
+	cout << "Invalid arguments. Use -h or --help to see available arguments" << endl;
+      }
     }
-    
+
+    if (!strcmp(argv[argument], "-d") || !strcmp(argv[argument], "--directory")) {
+      locationOfDFlag = argument;
+    }
+
   }
 
   // If -h or --help is used as an argument
   if(string_in_array(argv, "-h", argc) || string_in_array(argv, "--help", argc)) {
-    cout << "Usage:   -h   or  --help             Help Menu" << endl;
-    cout << "         -nw  or  --no-wallpaper     Do not set as wallpaper" << endl;
-    cout << "         -r   or  --random           Random image" << endl;
-    cout << "         -d   or  --default          Save in this directory and do not create config file" << endl;
+    cout << "Usage:   -h      or  --help             Help Menu" << endl;
+    cout << "         -nw     or  --no-wallpaper     Do not set as wallpaper" << endl;
+    cout << "         -r      or  --random           Random image" << endl;
+    cout << "         -d DIR  or  --directory DIR    Save in DIR and do not create config file" << endl;
     cout << "         YYMMDD                      Specify a date in YYMMDD format" << endl;
+    cout << "Configuration file is saved in $XDG_CONFIG_HOME/downloadapod/config.txt" << endl;
     return 0;
   }
 
@@ -135,10 +149,10 @@ int main(int argc, char *argv[]) {
   }
 
 
-  // If -d or --default is used as an argument
+  // If -d or --directory is used as an argument
   if(string_in_array(argv, "-d", argc) || string_in_array(argv, "--default", argc)) {
 
-    imageFileLocation = (string)get_current_dir_name();
+    imageFileLocation = (string)argv[locationOfDFlag + 1];
 
     // Else use a config file
   } else {
@@ -149,10 +163,12 @@ int main(int argc, char *argv[]) {
 
       getline(cin, imageFileLocation);
 
-      file_in.close();
-      ofstream file_out(configFileName);
-      file_out << imageFileLocation;
-      file_out.close();
+      if (strcmp(imageFileLocation.c_str(), "")) {
+	file_in.close();
+        ofstream file_out(configFileName);
+        file_out << imageFileLocation;
+        file_out.close();
+      }
 
     }
 
@@ -165,12 +181,12 @@ int main(int argc, char *argv[]) {
     //If the file is empty
     if(!strcmp(imageFileLocation.c_str(), "")) {
 
-      imageFileLocation = (string)get_current_dir_name();
+      imageFileLocation = ".";
 
       // Write default location to file
-      ofstream file_out2(configFileName);
-      file_out2 << imageFileLocation;
-      file_out2.close();
+      //ofstream file_out2(configFileName);
+      //file_out2 << imageFileLocation;
+      //file_out2.close();
     }
     
   }
